@@ -12,9 +12,8 @@ Fs = 250. # sampling freq
 def prepare_data_as(subj,runs,tw, cl=40,permutation=[47,53,54,55,56,57,60,61,62]):
     all_freqs = loadmat('./data/Freq_Phase.mat')['freqs'][0] # true freq
     step = 10
-    #step = int(math.ceil(tw*non_overlapping_rate)) # step of overlapping window
     ch = len(permutation) # # of channels
-    x = np.array([],dtype=np.float32).reshape(0,tw,ch) # data
+    x = np.array([],dtype=np.float32).reshape(0,tw,ch)
     y = np.zeros([0],dtype=np.int32) # true label
     file = loadmat('./data/S'+str(subj)+'.mat')['data']
     for run_idx in runs:
@@ -31,10 +30,8 @@ def prepare_data_as(subj,runs,tw, cl=40,permutation=[47,53,54,55,56,57,60,61,62]
     print('S'+str(subj)+'|x',x.shape)
     return x, y, all_freqs
 
-def prepare_template(subj,runs,tw,
-    cl=40,non_overlapping_rate=.15,permutation=[47,53,54,55,56,57,60,61,62],Fs=250.):
+def prepare_template(subj,runs,tw, cl=40,permutation=[47,53,54,55,56,57,60,61,62]):
     step = 10
-    #step = int(math.ceil(tw*non_overlapping_rate)) # step of overlapping window
     ch = len(permutation) # # of channels
     tr = len(runs)
     n_samples = 1  # the first data was used as the testing set
@@ -43,8 +40,7 @@ def prepare_template(subj,runs,tw,
     for freq_idx in range(cl):
         raw_data = np.zeros([ch,end_point-160,tr],dtype=np.float32)
         for r in range(tr):
-            raw_data[:,:,r] = file[permutation,160:end_point,freq_idx,runs[r]] # [ch,1250,runs]
-
+            raw_data[:,:,r] = file[permutation,160:end_point,freq_idx,runs[r]]
         # build template
         for i in range(n_samples):
             _t = np.zeros([ch,tw,tr],dtype=np.float32)
@@ -53,7 +49,7 @@ def prepare_template(subj,runs,tw,
             _t = filter(_t) # filter 7 - 70 Hz
             template[i,freq_idx,:,:] = np.mean(_t,axis=-1).T
     template = np.tile(template, (cl,1,1,1)) # [cl*sample,cl,tw,ch]
-    return template # [cl,samples]
+    return template
 
 ## prepossing by Chebyshev Type I filter
 def filter(x):
